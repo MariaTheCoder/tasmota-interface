@@ -96,8 +96,17 @@ function writeToDatabase(object) {
   }
 
   // create a data which is to be send to the database. Start by specifying the title of each row, then specify the value (param) for each row respectfully
-  let sql =
-    "INSERT INTO smartplugs (timeOfReading, DeviceName, IPAddress, Power, kWhToday, costkWh, totalCostToday) VALUES (?,?,?,?,?,?,?)";
+  let sql = `INSERT INTO smartplugs (
+      timeOfReading,
+      DeviceName,
+      IPAddress,
+      Power,
+      kWhToday,
+      costkWh,
+      totalCostToday
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
   let params = [
     new Date().toISOString(),
     object.deviceName,
