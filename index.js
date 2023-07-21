@@ -35,6 +35,21 @@ app.get("/api/smartplugs", async (req, res) => {
   }
 });
 
+app.get("/api/smartplugs/:IPAddress", async (req, res) => {
+  try {
+    const IPAddress = req.params.IPAddress;
+
+    const rows = await getDbEntriesWithIPAddress(IPAddress);
+    console.log("rows: ", rows);
+    res.json({
+      message: "success",
+      data: rows,
+    });
+  } catch {
+    reject(res.status(404).json({ error: err.message }));
+  }
+});
+
 app.get("/api/status/power", async (req, res) => {
   const statuses = await getDevicesData();
 
@@ -85,7 +100,7 @@ async function getDevicesData() {
 }
 
 function writeToDatabase(object) {
-  let error = [];
+  const error = [];
 
   // in case a data object is not given, push an error message to the user
   if (!object) {
@@ -93,7 +108,7 @@ function writeToDatabase(object) {
   }
 
   // create a data which is to be send to the database. Start by specifying the title of each row, then specify the value (param) for each row respectfully
-  let sql = `INSERT INTO smartplugs (
+  const sql = `INSERT INTO smartplugs (
       timeOfReading,
       deviceName,
       ipAddress,
@@ -104,7 +119,7 @@ function writeToDatabase(object) {
     )
     VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
-  let params = [
+  const params = [
     new Date().toISOString(),
     object.DeviceName,
     object.IPAddress,
@@ -123,9 +138,23 @@ function writeToDatabase(object) {
 }
 
 function getDbEntries() {
-  let sql = "select * from smartplugs";
+  const sql = "select * from smartplugs";
   return new Promise((resolve, reject) => {
     db.all(sql, [], (err, rows) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(rows);
+    });
+  });
+}
+
+// Read up on why the ? is necessary when you want to use SQL with user input for example
+// What the benefits are
+function getDbEntriesWithIPAddress(ipAddress) {
+  const sql = `SELECT * FROM smartplugs WHERE ipAddress = ?`;
+  return new Promise((resolve, reject) => {
+    db.all(sql, [ipAddress], (err, rows) => {
       if (err) {
         reject(err);
       }
