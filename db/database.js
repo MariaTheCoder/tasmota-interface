@@ -10,7 +10,7 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
     throw err;
   } else {
     console.log("Connected to the SQLite database.");
-    sql = `CREATE TABLE smartplugs(id INTEGER PRIMARY KEY AUTOINCREMENT,DeviceName,IPAddress,Power,kWhToday,costkWh,totalCostToday)`;
+    sql = `CREATE TABLE smartplugs(id INTEGER PRIMARY KEY AUTOINCREMENT,TimeOfReading,DeviceName,IPAddress,Power,kWhToday,costkWh,totalCostToday)`;
     db.run(sql, (err) => {
       if (err) {
         // Table already created
@@ -20,8 +20,9 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
         // Table just created, creating some rows
         console.log("Table just created. Create some rows");
         let insert =
-          "INSERT INTO smartplugs (DeviceName, IPAddress, Power, kWhToday, costkWh, totalCostToday) VALUES (?,?,?,?,?,?)";
+          "INSERT INTO smartplugs (TimeOfReading, DeviceName, IPAddress, Power, kWhToday, costkWh, totalCostToday) VALUES (?,?,?,?,?,?,?)";
         db.run(insert, [
+          "timeOfReading-1",
           "smartplug1",
           "IPAddress-1",
           "Power-1",
@@ -30,6 +31,7 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
           "totalCostToday-1",
         ]);
         db.run(insert, [
+          "timeOfReading-2",
           "smartplug2",
           "IPAddress-2",
           "Power-2",
@@ -38,6 +40,7 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
           "totalCostToday-2",
         ]);
         db.run(insert, [
+          "timeOfReading-1",
           "smartplug3",
           "IPAddress-3",
           "Power-3",
