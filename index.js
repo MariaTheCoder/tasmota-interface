@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
+let db = require("./db/database");
 
 const settings = require("./settings.json");
 
@@ -20,6 +21,21 @@ app.post("/api/toggle", async (req, res) => {
   const deviceData = require(`./${device}.json`);
   if (deviceData.StatusSTS.POWER == "ON") res.json({ POWER: "OFF" });
   else res.json({ POWER: "ON" });
+});
+
+app.get("/api/smartplugs", (req, res) => {
+  let sql = "select * from smartplugs";
+  let params = [];
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: "success",
+      data: rows,
+    });
+  });
 });
 
 app.get("/api/status/power", async (req, res) => {
