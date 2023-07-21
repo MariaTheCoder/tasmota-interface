@@ -1,4 +1,5 @@
 192.*.json
+db.sqlite
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/node,visualstudiocode,linux,windows,macos
