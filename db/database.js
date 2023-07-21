@@ -16,38 +16,6 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
         // Table already created
         console.log("Table already created");
         console.error(err);
-      } else {
-        // Table just created, creating some rows
-        console.log("Table just created. Create some rows");
-        let insert =
-          "INSERT INTO smartplugs (TimeOfReading, DeviceName, IPAddress, Power, kWhToday, costkWh, totalCostToday) VALUES (?,?,?,?,?,?,?)";
-        db.run(insert, [
-          "timeOfReading-1",
-          "smartplug1",
-          "IPAddress-1",
-          "Power-1",
-          "kWhToday-1",
-          "costkWh-1",
-          "totalCostToday-1",
-        ]);
-        db.run(insert, [
-          "timeOfReading-2",
-          "smartplug2",
-          "IPAddress-2",
-          "Power-2",
-          "kWhToday-2",
-          "costkWh-2",
-          "totalCostToday-2",
-        ]);
-        db.run(insert, [
-          "timeOfReading-1",
-          "smartplug3",
-          "IPAddress-3",
-          "Power-3",
-          "kWhToday-3",
-          "costkWh-3",
-          "totalCostToday-3",
-        ]);
       }
     });
   }
