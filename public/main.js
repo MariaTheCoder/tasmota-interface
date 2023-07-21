@@ -8,17 +8,17 @@
   const devices = data.data;
   const meta = data.meta;
 
-  displayTitle(meta.totalCostToday, document.body);
+  displayTitle(meta.TotalCostToday, document.body);
 
   for (const deviceData of devices) {
     displayDeviceInfo(deviceData, document.body);
   }
 })();
 
-function displayTitle(totalCostToday, parent) {
+function displayTitle(TotalCostToday, parent) {
   const title = document.createElement("h1");
 
-  title.innerText = `Today's total cost: ${totalCostToday} €`;
+  title.innerText = `Today's total cost: ${TotalCostToday} €`;
 
   parent.appendChild(title);
 }
@@ -31,7 +31,7 @@ function displayDeviceInfo(deviceData, parent) {
   const costToday = document.createElement("p");
   const toggleButton = document.createElement("button");
 
-  toggleButton.innerText = `Current status: ${deviceData.power}`;
+  toggleButton.innerText = `Current status: ${deviceData.Power}`;
 
   toggleButton.addEventListener("click", async (event) => {
     const response = await fetch("/api/toggle", {
@@ -49,9 +49,9 @@ function displayDeviceInfo(deviceData, parent) {
     event.target.innerText = `Current status: ${json.POWER}`;
   });
 
-  title.innerText = deviceData.deviceName;
+  title.innerText = deviceData.DeviceName;
 
-  costToday.innerText = deviceData.costToday + " €";
+  costToday.innerText = deviceData.CostToday + " €";
 
   div.appendChild(title);
   div.appendChild(costToday);
