@@ -10,10 +10,10 @@ const db = new sqlite3.Database(DBSOURCE, (err) => {
     console.log("Connected to the SQLite database.");
     const sql = `CREATE TABLE smartplugs(
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      TimeOfReading,
-      DeviceName,
-      IPAddress,
-      Power,
+      timeOfReading,
+      deviceName,
+      ipAddress,
+      power,
       kWhToday,
       costkWh,
       totalCostToday

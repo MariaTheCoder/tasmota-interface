@@ -45,18 +45,18 @@ app.get("/api/status/power", async (req, res) => {
 
   responseObject.data = statuses.map((data) => {
     const currentPowerStatus = data.StatusSNS?.ENERGY;
-    currentPowerStatus.deviceName = data.Status?.DeviceName;
-    currentPowerStatus.costToday =
+    currentPowerStatus.DeviceName = data.Status?.DeviceName;
+    currentPowerStatus.CostToday =
       (currentPowerStatus.Today * settings.kWhPrice) / 100;
-    currentPowerStatus.power = data.StatusSTS.POWER;
+    currentPowerStatus.Power = data.StatusSTS.POWER;
     currentPowerStatus.IPAddress = data.StatusNET.IPAddress;
     return currentPowerStatus;
   });
-  let totalCostToday = 0;
-  responseObject.data.forEach((data) => (totalCostToday += data.costToday));
+  let TotalCostToday = 0;
+  responseObject.data.forEach((data) => (TotalCostToday += data.CostToday));
 
   responseObject.meta = {
-    totalCostToday,
+    TotalCostToday,
   };
 
   // finally, write data objects inside of responseObject.data to the database
@@ -98,9 +98,9 @@ function writeToDatabase(object) {
   // create a data which is to be send to the database. Start by specifying the title of each row, then specify the value (param) for each row respectfully
   let sql = `INSERT INTO smartplugs (
       timeOfReading,
-      DeviceName,
-      IPAddress,
-      Power,
+      deviceName,
+      ipAddress,
+      power,
       kWhToday,
       costkWh,
       totalCostToday
@@ -109,12 +109,12 @@ function writeToDatabase(object) {
 
   let params = [
     new Date().toISOString(),
-    object.deviceName,
+    object.DeviceName,
     object.IPAddress,
-    object.power,
+    object.Power,
     object.Today,
-    object.costToday,
-    object.Today * object.costToday,
+    object.CostToday,
+    object.Today * object.CostToday,
   ];
 
   // add new data to the database
