@@ -59,6 +59,9 @@ app.get("/api/status/power", async (req, res) => {
     totalCostToday,
   };
 
+  // finally, write data objects inside of responseObject.data to the database
+  responseObject.data.forEach((data) => writeToDatabase(data));
+
   res.json(responseObject);
 });
 
@@ -82,4 +85,33 @@ async function getDevicesData() {
   if (process.env.NODE_ENV === "development") {
     return settings.devices.map((device) => require(`./${device}.json`));
   }
+}
+
+function writeToDatabase(object) {
+  let error = [];
+
+  // in case a data object is not given, push an error message to the user
+  if (!object) {
+    error.push("No object specified");
+  }
+
+  // create a data which is to be send to the database. Start by specifying the title of each row, then specify the value (param) for each row respectfully
+  let sql =
+    "INSERT INTO smartplugs (timeOfReading, DeviceName, IPAddress, Power, kWhToday, costkWh, totalCostToday) VALUES (?,?,?,?,?,?,?)";
+  let params = [
+    new Date().toISOString(),
+    object.deviceName,
+    object.IPAddress,
+    object.power,
+    object.Today,
+    object.costToday,
+    object.Today * object.costToday,
+  ];
+
+  // add new data to the database
+  db.run(sql, params, function (err) {
+    if (err) {
+      console.error(err);
+    }
+  });
 }
