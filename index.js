@@ -23,19 +23,16 @@ app.post("/api/toggle", async (req, res) => {
   else res.json({ POWER: "ON" });
 });
 
-app.get("/api/smartplugs", (req, res) => {
-  let sql = "select * from smartplugs";
-  let params = [];
-  db.all(sql, params, (err, rows) => {
-    if (err) {
-      res.status(400).json({ error: err.message });
-      return;
-    }
+app.get("/api/smartplugs", async (req, res) => {
+  try {
+    const rows = await getDbEntries();
     res.json({
       message: "success",
       data: rows,
     });
-  });
+  } catch (err) {
+    reject(res.status(502).json({ error: err.message }));
+  }
 });
 
 app.get("/api/status/power", async (req, res) => {
@@ -122,5 +119,17 @@ function writeToDatabase(object) {
     if (err) {
       console.error(err);
     }
+  });
+}
+
+function getDbEntries() {
+  let sql = "select * from smartplugs";
+  return new Promise((resolve, reject) => {
+    db.all(sql, [], (err, rows) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(rows);
+    });
   });
 }
