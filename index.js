@@ -23,6 +23,9 @@ app.post("/api/toggle", async (req, res) => {
   else res.json({ POWER: "ON" });
 });
 
+/**
+ * Create an endpoint to which the user can receive all data on smartplugs from the database
+ * */
 app.get("/api/smartplugs", async (req, res) => {
   try {
     const rows = await getDbEntries();
@@ -68,8 +71,14 @@ app.get("/api/smartplugs/:IPAddress", async (req, res) => {
 });
 
 app.get("/api/status/power", async (req, res) => {
+  /**
+   * Call a function which gets smartplug device data to the user and store the data inside of a constant variable
+   */
   const statuses = await getDevicesData();
 
+  /**
+   * Create an empty response object and add the specific data which is to be send to the client
+   */
   const responseObject = {};
 
   responseObject.data = statuses.map((data) => {
@@ -81,6 +90,12 @@ app.get("/api/status/power", async (req, res) => {
     currentPowerStatus.IPAddress = data.StatusNET.IPAddress;
     return currentPowerStatus;
   });
+
+  /**
+   * Eventually, we also want to add a TotalCostToday variable.
+   * Preset the value to 0 and add the value of CostToday for each smartplug to this present value so we end up with a sum.
+   * Once this is done, add TotalCostToday to responseObject.meta
+   */
   let TotalCostToday = 0;
   responseObject.data.forEach((data) => (TotalCostToday += data.CostToday));
 
@@ -88,7 +103,9 @@ app.get("/api/status/power", async (req, res) => {
     TotalCostToday,
   };
 
-  // finally, write data objects inside of responseObject.data to the database
+  /**
+   * Finally, for each data object inside of responseObject.data, call a function which write data objects to the database
+   */
   responseObject.data.forEach((data) => writeToDatabase(data));
 
   res.json(responseObject);
@@ -100,6 +117,21 @@ app.listen(9999, () => {
   }
 });
 
+/**
+ * Implement an asynchronous function which goal is to return smartplug data to the user.
+ * The user should have specified IP-Addresses of smartplug devices within the network in root file settings.json.
+ *
+ * If the node enviroment variaible is set to production, the function fetches data for each of these smartplugs via fetch api.
+ * Each of these fetch api calls return a promise.
+ * Once all promises are settled, whether they get resolved of rejected, the smartplug data is then returned to the user.
+ *
+ * In development mode, we send back the data specified in three sample files:
+ * 192.168.2.113.json
+ * 192.168.2.116.json
+ * 192.168.2.117.json
+ *
+ * The data found inside of these sample files are then returned to the user.
+ */
 async function getDevicesData() {
   if (process.env.NODE_ENV === "production") {
     const promises = settings.devices.map((device) =>
@@ -116,25 +148,36 @@ async function getDevicesData() {
   }
 }
 
+/**
+ * Implement a function which writes (adds) data objects to the database
+ */
 function writeToDatabase(object) {
   const error = [];
 
-  // in case a data object is not given, push an error message to the user
+  /**
+   *  In case a data object is not given, push an error message to the user
+   */
   if (!object) {
     error.push("No object specified");
   }
 
-  // create a data which is to be send to the database. Start by specifying the title of each row, then specify the value (param) for each row respectfully
+  /**
+   * The goal is to create a new record (row) in the database table.
+   * We can do this by running the SQL INSERT INTO statement.
+   *
+   * Since the column names are pre-defined in database.js, we solely need to specify the values for each column.
+   * By inserting the value of NULL for id as it means autoincrement.
+   */
   const sql = `INSERT INTO smartplugs (
-      timeOfReading,
-      deviceName,
-      ipAddress,
-      power,
-      kWhToday,
-      costkWh,
-      totalCostToday
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    timeOfReading,
+    deviceName,
+    ipAddress,
+    power,
+    kWhToday,
+    costkWh,
+    totalCostToday
+  )
+  VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
   const params = [
     new Date().toISOString(),
@@ -146,7 +189,9 @@ function writeToDatabase(object) {
     object.Today * object.CostToday,
   ];
 
-  // add new data to the database
+  /**
+   * Run the SQL statement
+   */
   db.run(sql, params, function (err) {
     if (err) {
       console.error(err);
@@ -154,8 +199,13 @@ function writeToDatabase(object) {
   });
 }
 
+/**
+ * Implement a afunction which returns a promise.
+ * If the promise is resolved, return all smartplug entries from the database
+ * If the promise is rejected, return error to the user.
+ * */
 function getDbEntries() {
-  const sql = "select * from smartplugs";
+  const sql = `SELECT * FROM smartplugs`;
   return new Promise((resolve, reject) => {
     db.all(sql, [], (err, rows) => {
       if (err) {
@@ -168,7 +218,7 @@ function getDbEntries() {
 
 /**
  * Implement a function which returns a promise.
- * If the promise if resolved, the function should return the data object from the backend which has the given id.
+ * If the promise is resolved, the function should return the data object from the dataabase which has the given id.
  * If the promise is rejected, return an error to the user.
  * */
 function getDbEntryWithId(id) {
@@ -183,8 +233,15 @@ function getDbEntryWithId(id) {
   });
 }
 
-// Read up on why the ? is necessary when you want to use SQL with user input for example
-// What the benefits are
+/**
+ * Implement a function which returns a promise.
+ * If the promise is resolved, the function should return all data objects from the database which have the given IP-Address.
+ * If the promise is rejected, return an error to the user.
+ *
+ * TASK:
+ * Read up on why the ? is necessary when you want to use SQL with user input for example.
+ * Look into what the benefits are.
+ * */
 function getDbEntriesWithIPAddress(ipAddress) {
   const sql = `SELECT * FROM smartplugs WHERE ipAddress = ?`;
   return new Promise((resolve, reject) => {
