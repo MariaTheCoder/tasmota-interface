@@ -38,23 +38,6 @@ app.get("/api/smartplugs", async (req, res) => {
   }
 });
 
-/**
- * Create an endpoint to which the user can receive data from the database with a given id
- * */
-app.get("/api/smartplugs/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-
-    const row = await getDbEntryWithId(id);
-    res.json({
-      message: "success",
-      data: row,
-    });
-  } catch (err) {
-    reject(res.status(502).json({ error: err.message }));
-  }
-});
-
 app.get("/api/smartplugs/:IPAddress", async (req, res) => {
   try {
     const IPAddress = req.params.IPAddress;
@@ -66,6 +49,27 @@ app.get("/api/smartplugs/:IPAddress", async (req, res) => {
       data: rows,
     });
   } catch {
+    reject(res.status(404).json({ error: err.message }));
+  }
+});
+
+/**
+ * Create an endpoint to which the user can receive data from the database with a given id
+ * */
+app.get("/api/smartplugs/:IPAddress/:id", async (req, res) => {
+  try {
+    const IPAddress = req.params.IPAddress;
+    const id = req.params.id;
+
+    const rows = await getDbEntriesWithIPAddress(IPAddress);
+    const foundIndex = rows.findIndex((row) => Number(row.id) === Number(id));
+    const row = rows[foundIndex];
+
+    res.json({
+      message: "success",
+      data: row,
+    });
+  } catch (err) {
     reject(res.status(404).json({ error: err.message }));
   }
 });
@@ -203,23 +207,6 @@ function getDbEntries() {
         reject(err);
       }
       resolve(rows);
-    });
-  });
-}
-
-/**
- * Implement a function which returns a promise.
- * If the promise is resolved, the function should return the data object from the dataabase which has the given id.
- * If the promise is rejected, return an error to the user.
- * */
-function getDbEntryWithId(id) {
-  const sql = `SELECT * FROM smartplugs WHERE id = ?`;
-  return new Promise((resolve, reject) => {
-    db.get(sql, [id], (err, row) => {
-      if (err) {
-        reject(err);
-      }
-      resolve(row);
     });
   });
 }
