@@ -168,16 +168,7 @@ function writeToDatabase(object) {
    * Since the column names are pre-defined in database.js, we solely need to specify the values for each column.
    * By inserting the value of NULL for id as it means autoincrement.
    */
-  const sql = `INSERT INTO smartplugs (
-    timeOfReading,
-    deviceName,
-    ipAddress,
-    power,
-    kWhToday,
-    costkWh,
-    totalCostToday
-  )
-  VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  const sql = `INSERT INTO smartplugs VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)`;
 
   const params = [
     new Date().toISOString(),
