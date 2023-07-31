@@ -95,6 +95,7 @@ app.get("/api/status/power", async (req, res) => {
     currentPowerStatus.DeviceName = data.Status?.DeviceName;
     currentPowerStatus.CostToday =
       (currentPowerStatus.Today * settings.kWhPrice) / 100;
+    currentPowerStatus.ActivePower = currentPowerStatus.Power;
     currentPowerStatus.Power = data.StatusSTS.POWER;
     currentPowerStatus.IPAddress = data.StatusNET.IPAddress;
     return currentPowerStatus;
