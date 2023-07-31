@@ -43,7 +43,7 @@ app.get("/api/smartplugs/:IPAddress", async (req, res) => {
     const IPAddress = req.params.IPAddress;
 
     const rows = await getDbEntriesWithIPAddress(IPAddress);
-    console.log("rows: ", rows);
+
     res.json({
       message: "success",
       data: rows,
@@ -62,7 +62,12 @@ app.get("/api/smartplugs/:IPAddress/:id", async (req, res) => {
     const id = req.params.id;
 
     const rows = await getDbEntriesWithIPAddress(IPAddress);
-    const foundIndex = rows.findIndex((row) => Number(row.id) === Number(id));
+    const foundIndex = rows.findIndex((row) => row.id === Number(id));
+
+    if (foundIndex === -1) {
+      return console.error("No id match found");
+    }
+
     const row = rows[foundIndex];
 
     res.json({
